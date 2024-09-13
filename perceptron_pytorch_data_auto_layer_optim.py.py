@@ -7,9 +7,9 @@
 # Distribué sous licence BSD.
 # ------------------------------------------------------------------------
 
-import gzip,numpy,torch
-
-import gzip, numpy, torch
+from matplotlib import pyplot as plt
+import gzip, numpy, torch, matplotlib
+from shallow_network import *
     
 if __name__ == '__main__':
 	batch_size = 5 # nombre de données lues à chaque fois
@@ -25,11 +25,19 @@ if __name__ == '__main__':
 	test_loader = torch.utils.data.DataLoader(test_dataset, batch_size=1, shuffle=False)
 
 	# on initialise le modèle et ses poids
-	model = torch.nn.Linear(data_train.shape[1],label_train.shape[1])
-	torch.nn.init.uniform_(model.weight,-0.001,0.001)
+	# model = torch.nn.Linear(data_train.shape[1],label_train.shape[1])
+	model = ShallowNet()
+# 	torch.nn.init.uniform_(model.weight,-0.001,0.001)
+	
+ 
 	# on initiliase l'optimiseur
-	loss_func = torch.nn.MSELoss(reduction='sum')
+	#Cgt de sum à mean
+	loss_func = torch.nn.MSELoss(reduction='mean')
 	optim = torch.optim.SGD(model.parameters(), lr=eta)
+ 
+	#Suivit de l'évolutions du NN 
+	#train_losses = []
+	test_accuracies = []
 
 	for n in range(nb_epochs):
 		# on lit toutes les données d'apprentissage
@@ -51,4 +59,23 @@ if __name__ == '__main__':
 			# on regarde si la sortie est correcte
 			acc += torch.argmax(y,1) == torch.argmax(t,1)
 		# on affiche le pourcentage de bonnes réponses
+		test_accuracies.append((acc/data_test.shape[0]).item())
 		print(acc/data_test.shape[0])
+  
+      # Visualisation des résultats
+	plt.figure(figsize=(6, 6))
+
+	print(test_accuracies)
+	# Graphe de l'accuracy
+	plt.plot(range(1, nb_epochs+1), test_accuracies, label="Test Accuracy", color='green')
+	plt.title('Accuracy During Testing')
+	plt.xlabel('Epochs')
+	plt.ylabel('Accuracy')
+	plt.legend()
+
+	# Affichage des hyperparamètres choisis
+	plt.suptitle(f"Learning Rate: {eta}, Batch Size: {batch_size}, Epochs: {nb_epochs}", fontsize=14)
+
+	# Affichage des graphes
+	plt.tight_layout(rect=[0, 0, 1, 0.95])
+	plt.show()
