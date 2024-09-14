@@ -10,12 +10,17 @@
 from matplotlib import pyplot as plt
 import gzip, numpy, torch, matplotlib
 from shallow_network import *
-    
-if __name__ == '__main__':
-	batch_size = 5 # nombre de données lues à chaque fois
-	nb_epochs = 10 # nombre de fois que la base de données sera lue
-	eta = 0.00001 # taux d'apprentissage
-	
+
+def train_return(batch_size = 5, nb_epochs = 3, eta = 0.00001, hidden_neurons = 64) :
+	"""Entraine le réseau de neuronnes et renvoi l'évolution de l'accuracy au cours des epochs en fonction des paramètres
+
+	Args:
+		batch_size (int, optional): Taille des jeu d'entrainements.
+		nb_epochs (int, optional): Nombres d'époques (d'itérations)..
+		eta (float, optional): Taux d'apprentissage. 
+		hidden_neurons (int, optional): Nombre de neuronne de la couche cachée.
+	"""
+ 
 	# on lit les données
 	((data_train,label_train),(data_test,label_test)) = torch.load(gzip.open('mnist.pkl.gz'))
 	# on crée les lecteurs de données
@@ -26,7 +31,13 @@ if __name__ == '__main__':
 
 	# on initialise le modèle et ses poids
 	# model = torch.nn.Linear(data_train.shape[1],label_train.shape[1])
-	model = ShallowNet()
+	try :
+		del(model) 
+	except : 
+		pass
+     
+    
+	model = ShallowNet(hidden_neurons)
 # 	torch.nn.init.uniform_(model.weight,-0.001,0.001)
 	
  
@@ -61,21 +72,29 @@ if __name__ == '__main__':
 		# on affiche le pourcentage de bonnes réponses
 		test_accuracies.append((acc/data_test.shape[0]).item())
 		print(acc/data_test.shape[0])
-  
-      # Visualisation des résultats
-	plt.figure(figsize=(6, 6))
+	return test_accuracies
 
-	print(test_accuracies)
-	# Graphe de l'accuracy
-	plt.plot(range(1, nb_epochs+1), test_accuracies, label="Test Accuracy", color='green')
+
+    
+if __name__ == '__main__':
+	nb_epochs = 10
+	for i in [32, 128] : 
+		print(i)
+		test_accuracies = train_return(5, 10, 0.001, i)
+		# Visualisation des résultats
+		plt.figure(figsize=(6, 6))
+
+		print(test_accuracies)
+		# Graphe de l'accuracy
+		plt.plot(range(1, nb_epochs+1), test_accuracies, label=f'Test Accuracy : {i}', color='green')
+
+
+	# Affichage des hyperparamètres choisis
+	#plt.suptitle(f"Learning Rate: {eta}, Batch Size: {batch_size}, Epochs: {nb_epochs}", fontsize=14)
 	plt.title('Accuracy During Testing')
 	plt.xlabel('Epochs')
 	plt.ylabel('Accuracy')
 	plt.legend()
-
-	# Affichage des hyperparamètres choisis
-	plt.suptitle(f"Learning Rate: {eta}, Batch Size: {batch_size}, Epochs: {nb_epochs}", fontsize=14)
-
 	# Affichage des graphes
 	plt.tight_layout(rect=[0, 0, 1, 0.95])
 	plt.show()
