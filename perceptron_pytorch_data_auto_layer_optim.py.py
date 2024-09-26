@@ -121,26 +121,27 @@ def train_return(batch_size = 5, nb_epochs = 3, eta = 0.00001, hidden_neurons = 
 if __name__ == '__main__':
 	nb_epochs = 10
 	batch_size = 5
+	cmap=plt.get_cmap('terrain')
+	
 	plt.figure(figsize=(6, 6))
-	c = {16:'red', 32:'green', 64:'yellow', 128:'blue', 256:'grey', 512:'black'}
-	for i in [16, 32, 64, 128, 256, 512] : 
+	c = 0
+	#{16:'red', 32:'green', 64:'yellow', 128:'blue', 256:'grey', 512:'black'}
+	for i in [16, 32, 64, 128, 256, 512] : #liste de paramètre qu'on veut tester
 		print(i)
 		test_accuracies, elapsed_time = train_return(batch_size, nb_epochs, 0.001, i)
 		# Visualisation des résultats
-		
 
-
-  
-  
 		# Graphe de l'accuracy
-		plt.plot(range(1, nb_epochs+1), test_accuracies, label=f'Nombre de neurones : {i} a duré {elapsed_time:.2f}s', color=c[i])
+		plt.plot(range(1, nb_epochs+1), test_accuracies, label=f'Nombre de neurones : {i} a duré {elapsed_time:.2f}s', color=cmap(c))
+  
+		c = c+0.15
 
 
 	# Affichage des hyperparamètres choisis
 	#plt.suptitle(f"Learning Rate: {eta}, Batch Size: {batch_size}, Epochs: {nb_epochs}", fontsize=14)
-	plt.title('Accuracy During Testing')
+	plt.title('Evolution de la précision en fonction du nombre de neuronnes')
 	plt.xlabel('Epochs')
-	plt.ylabel('Accuracy')
+	plt.ylabel('Précision')
 	plt.legend()
 	# Affichage des graphes
 	plt.tight_layout(rect=[0, 0, 1, 0.95])
